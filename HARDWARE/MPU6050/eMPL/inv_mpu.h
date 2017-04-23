@@ -132,6 +132,10 @@ extern float pitch,roll,yaw;		//欧拉角
 extern short aacx,aacy,aacz;		//加速度传感器原始数据
 extern short gyrox,gyroy,gyroz;		//陀螺仪原始数据
 extern vu8 UPDATE_OLA_FLAG;
+extern float v_x;//三个方向速度
+extern float v_y;
+extern float v_z;
+extern short adjust_acx,adjust_acy,adjust_acz;//校准模式下的各个方向加速度
 
 //自行添加的一些函数
 void mget_ms(unsigned long *time);

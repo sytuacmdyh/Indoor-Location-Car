@@ -2988,10 +2988,18 @@ u8 mpu_dmp_get_data(float *pitch,float *roll,float *yaw)
 	return 0;
 }
 
-float pitch,roll,yaw; 		//欧拉角
-short aacx,aacy,aacz;		//加速度传感器原始数据
-short gyrox,gyroy,gyroz;	//陀螺仪原始数据
+//原始数据
+float pitch=0,roll=0,yaw=0; 		//欧拉角
+short aacx=0,aacy=0,aacz=0;		//加速度传感器原始数据
+short gyrox=0,gyroy=0,gyroz=0;	//陀螺仪原始数据
 vu8 UPDATE_OLA_FLAG=0;
+
+//辅助计算数据
+short adjust_acx=0,adjust_acy=0,adjust_acz=0;//校准模式下的各个方向加速度
+float acc_rate=9.8/16384.0;//加速度转换倍率 short->real acc
+float v_x=0;//三个方向速度
+float v_y=0;
+float v_z=0;
 
 //定时器6中断服务程序
 void TIM6_IRQHandler(void)
@@ -2999,6 +3007,9 @@ void TIM6_IRQHandler(void)
 	if (TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)//是更新中断
 	{
 		UPDATE_OLA_FLAG=1;
+		v_x+=(aacx-adjust_acx)*acc_rate*0.01;
+		v_y+=(aacy-adjust_acy)*acc_rate*0.01;
+		v_z+=(aacz-adjust_acz)*acc_rate*0.01;
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);  //清除TIM6更新中断标志
 	}
 }

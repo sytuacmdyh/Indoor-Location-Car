@@ -27,6 +27,7 @@ void init()
 	usart2_init(38400);//蓝牙AT模式波特率38400，通信模式9600
 	usart3_init(115200);
 	LED_Init();			     //LED端口初始化
+	KEY_Init();
 	BEEP_Init();
 	LCD_Init();
 	W25QXX_Init();				//初始化W25Q128
@@ -71,7 +72,12 @@ void init()
 int main()
 {
 	char str[20];
-	u32 t=0;
+	short btn=0;
+	u32 t=0;//主循环次数
+	u32 f_count=0;//初始化mpu失败次数
+	u8 adjustModel=FALSE;
+	int adjustCount=0;
+	int adjust_acx_t=0,adjust_acy_t=0,adjust_acz_t=0;
 	
 	init();
 	
@@ -80,8 +86,39 @@ int main()
 	
 	while(1)
 	{
+		btn=KEY_Scan(0);
+		if(btn==1){//按下key0 开始校准，结束校准开关
+			BEEP_DI();
+			v_x=v_y=v_z=0;
+			if(!adjustModel){//开始校准初始化
+				adjustCount=0;
+				adjust_acx_t=adjust_acy_t=adjust_acz_t=0;
+			}
+			else{//结束校准
+				adjust_acx=adjust_acx_t/adjustCount;
+				adjust_acy=adjust_acy_t/adjustCount;
+				adjust_acz=adjust_acz_t/adjustCount;
+				printf("%d,%d,%d\r\n",adjust_acx,adjust_acy,adjust_acz);
+				printf("_t %d %d,%d,%d\r\n",adjustCount,adjust_acx_t,adjust_acy_t,adjust_acz_t);
+				printf("acc %d,%d,%d\r\n",aacx,aacy,aacz);
+			}
+			adjustModel=!adjustModel;
+		}
+		if(adjustModel){
+			if(mpu_dmp_get_data(&pitch,&roll,&yaw)==0)//100000次用时45s   读的频率必须高一点。。。
+			{
+				MPU_Get_Accelerometer(&aacx,&aacy,&aacz);	//得到加速度传感器数据
+				MPU_Get_Gyroscope(&gyrox,&gyroy,&gyroz);	//得到陀螺仪数据
+				adjust_acx_t+=aacx;
+				adjust_acy_t+=aacy;
+				adjust_acz_t+=aacz;
+				adjustCount++;
+			}
+			continue;
+		}
+		
 		//接收bluetooth消息完成，发送给服务器
-		send_bluetooth_info();
+//		send_bluetooth_info();
 		
 		//播放音乐部分
 		mp3_play();
@@ -99,9 +136,31 @@ int main()
 			LED0=!LED0;
 			if(mpu_dmp_get_data(&pitch,&roll,&yaw)==0)//100000次用时45s   读的频率必须高一点。。。
 			{
+				f_count=0;
 				MPU_Get_Accelerometer(&aacx,&aacy,&aacz);	//得到加速度传感器数据
 				MPU_Get_Gyroscope(&gyrox,&gyroy,&gyroz);	//得到陀螺仪数据
 				//u3_printf();
+			}
+			else{
+				++f_count;
+				LCD_ShowxNum(30,230,f_count,16,16,0);
+				if(f_count>=100){
+					while(MPU_Init())					//初始化MPU6050
+					{
+						LCD_ShowString(30,130,200,16,16,"MPU6050 init Error");
+						delay_ms(200);
+						LCD_Fill(30,130,239,130+16,WHITE);
+						delay_ms(200);
+					}
+					while(mpu_dmp_init())
+					{
+						LCD_ShowString(30,130,200,16,16,"MPU6050 dmp Error");
+						delay_ms(200);
+						LCD_Fill(30,130,239,130+16,WHITE);
+						delay_ms(200);
+					}
+					f_count=0;
+				}
 			}
 			UPDATE_OLA_FLAG=0;
 		}
@@ -109,12 +168,16 @@ int main()
 		if(t>=100000)
 		{
 			LED1=!LED1;
-			sprintf(str,"yaw: %f\n roll: %f\n pitch: %f\n left: %hd\n right: %hd",yaw,roll,pitch,TIM3->CCR1,TIM3->CCR2);
-			LCD_Show_Help_str(30,50,16,str);//参数y=-1代表显示在前一条后面一行
+//			sprintf(str,"yaw: %f\n roll: %f\n pitch: %f\n left: %hd\n right: %hd",yaw,roll,pitch,TIM3->CCR1,TIM3->CCR2);
+//			LCD_Show_Help_str(30,50,16,str);//参数y=-1代表显示在前一条后面一行
+//			sprintf(str,"ACC\r\n  x:%f\r\n  y:%f\r\n  z:%f\r\n",9.8*aacx*1.0/16384.0,9.8*aacy*1.0/16384.0,9.8*aacz*1.0/16384.0);
+//			LCD_Show_Help_str(30,-1,16,str);//参数y=-1代表显示在前一条后面一行
+//			sprintf(str,"GYR\nx:%d\ny:%d\nz:%d",gyrox,gyroy,gyroz);
+//			LCD_Show_Help_str(30,-1,16,str);//参数y =-1代表显示在前一条后面一行
 			sprintf(str,"ACC\r\n  x:%f\r\n  y:%f\r\n  z:%f\r\n",9.8*aacx*1.0/16384.0,9.8*aacy*1.0/16384.0,9.8*aacz*1.0/16384.0);
+			LCD_Show_Help_str(30,50,16,str);//参数y=-1代表显示在前一条后面一行
+			sprintf(str,"V\r\n  x:%f\r\n  y:%f\r\n  z:%f\r\n",v_x,v_y,v_z);
 			LCD_Show_Help_str(30,-1,16,str);//参数y=-1代表显示在前一条后面一行
-			sprintf(str,"GYR\nx:%d\ny:%d\nz:%d",gyrox,gyroy,gyroz);
-			LCD_Show_Help_str(30,-1,16,str);//参数y =-1代表显示在前一条后面一行
 			t=0;
 		}
 		t++;
