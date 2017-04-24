@@ -3,7 +3,7 @@
 
 //speed 调整幅度
 u8 SPEED_DIF=5;
-u8 MAX_DEGREE=90;
+u8 MAX_DEGREE=90;//微调最大限度
 u8 START_AUST=2;
 
 #define STOP	0
@@ -13,7 +13,7 @@ u8 START_AUST=2;
 #define RIGHT	4
 
 //转弯速度
-#define TURN_SPEED 120
+u8 TURN_SPEED=120;
 
 u8 cur_task=STOP;//当前状态
 float raw_yaw=0;//动作开始前的航向角
@@ -107,7 +107,7 @@ void car_back(){
 void turn_left()
 {
 	MOTOR_L_F=0;
-	MOTOR_L_B=1;
+	MOTOR_L_B=0;
 	MOTOR_R_F=1;
 	MOTOR_R_B=0;
 	TIM_SetCompare1(TIM3,TURN_SPEED);
@@ -118,11 +118,13 @@ void turn_right()
 	MOTOR_L_F=1;
 	MOTOR_L_B=0;
 	MOTOR_R_F=0;
-	MOTOR_R_B=1;
+	MOTOR_R_B=0;
 	TIM_SetCompare1(TIM3,TURN_SPEED);
 	TIM_SetCompare2(TIM3,TURN_SPEED);
 }
 void car_left(u8 degree){
+	if(degree>180)
+		return;
 	cur_task=LEFT;
 	raw_yaw=yaw;
 	tar_yaw=raw_yaw+degree;
@@ -134,6 +136,8 @@ void car_left(u8 degree){
 	TIM_Cmd(TIM5,ENABLE);//开启定时器5
 }
 void car_right(u8 degree){
+	if(degree>180)
+		return;
 	cur_task=RIGHT;
 	raw_yaw=yaw;
 	tar_yaw=raw_yaw-degree;
@@ -214,17 +218,14 @@ void TIM5_IRQHandler(void)
 					left_more();
 				break;
 			case LEFT:
-				if(yaw>tar_yaw+START_AUST)
-					turn_right();
-				else if(yaw<tar_yaw-START_AUST)
+				if(yaw<tar_yaw-START_AUST||yaw>tar_yaw+START_AUST)
 					turn_left();
 				else
 					car_stop();
+				break;
 			case RIGHT:
-				if(yaw>tar_yaw+START_AUST)
+				if(yaw<tar_yaw-START_AUST||yaw>tar_yaw+START_AUST)
 					turn_right();
-				else if(yaw<tar_yaw-START_AUST)
-					turn_left();
 				else
 					car_stop();
 				break;
@@ -291,7 +292,7 @@ void car_init(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIO_Init(GPIOF, &GPIO_InitStructure);
 	
-	TIM5_Int_Init(1000-1,7200-1);//100ms
+	TIM5_Int_Init(500-1,7200-1);//50ms
 	car_stop();
 }
 

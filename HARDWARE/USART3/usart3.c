@@ -65,6 +65,7 @@ void analyse(char * str)
 			t+=str[3]-'0';
 			t*=10;
 			t+=str[4]-'0';
+			u3_printf("%d\n",t);
 			if(t>=0&&t<=180)
 				car_left(t);
 		}
@@ -79,11 +80,16 @@ void analyse(char * str)
 			t+=str[3]-'0';
 			t*=10;
 			t+=str[4]-'0';
+			u3_printf("%d\n",t);
 			if(t>=0&&t<=180)
 				car_right(t);
 		}
 	}
 	//test
+	else if(str[0]=='T'&&str[1]=='S'){
+		TURN_SPEED=atoi(str+2);
+		u3_printf("\nset turn speed:%d",TURN_SPEED);
+	}
 	else if(strlen(str)==4 && str[0]=='T')//设置小车自动调整参数
 	{
 		SPEED_DIF=str[1]-'0';

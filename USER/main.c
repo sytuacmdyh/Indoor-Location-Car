@@ -81,7 +81,7 @@ int main()
 	while(1)
 	{
 		//接收bluetooth消息完成，发送给服务器
-		send_bluetooth_info();
+//		send_bluetooth_info();
 		
 		//播放音乐部分
 		mp3_play();

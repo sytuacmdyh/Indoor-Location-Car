@@ -20,7 +20,7 @@ void BEEP_Init(void)
 void BEEP_DI()//µÎÒ»Éù
 {
 	BEEP=1;
-	delay_ms(200);
+	delay_ms(20);
 	BEEP=0;
 }
 

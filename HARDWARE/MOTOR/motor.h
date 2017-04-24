@@ -13,6 +13,7 @@
 extern u8 SPEED_DIF;
 extern u8 MAX_DEGREE;
 extern u8 START_AUST;
+extern u8 TURN_SPEED;
 
 void car_init(void);//≥ı ºªØ
 void car_forward(void);
