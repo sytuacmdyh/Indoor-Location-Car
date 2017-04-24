@@ -26,9 +26,9 @@ IO
 	PB11	USART3_RX	WIFI
 	PC6	TIM3_CH1	小车运动left
 	PC7 	TIM3_CH2	小车运动right
-	PD11	IO			超声波TIRG
+	PD11	IO		超声波TIRG
 	PD12	TIM4_CH1	超声波ECHO
-	PF0	IO			小车运动
-	PF1	IO			小车运动
-	PF2	IO			小车运动
-	PF3	IO			小车运动
+	PF0	IO		小车运动
+	PF1	IO		小车运动
+	PF2	IO		小车运动
+	PF3	IO		小车运动
