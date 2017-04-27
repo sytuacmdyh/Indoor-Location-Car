@@ -895,8 +895,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\README.TXT</PathWithFileName>
-      <FilenameWithoutPath>README.TXT</FilenameWithoutPath>
+      <PathWithFileName>..\README.md</PathWithFileName>
+      <FilenameWithoutPath>README.md</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

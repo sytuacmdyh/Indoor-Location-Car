@@ -2,7 +2,7 @@
 #include "delay.h"
 #include "key.h"
 #include "sys.h"
-#include "lcd.h"
+//#include "lcd.h"
 #include "usart.h"
 #include "usart3.h"
 #include "usart2.h"
@@ -28,7 +28,7 @@ void init()
 	usart3_init(115200);
 	LED_Init();			     //LED端口初始化
 	BEEP_Init();
-	LCD_Init();
+//	LCD_Init();
 	W25QXX_Init();				//初始化W25Q128
 	VS_Init();	  				//初始化VS1053 
 //	SR04_Init();
@@ -39,12 +39,12 @@ void init()
 	f_mount(fs[0],"0:",1); 		//挂载SD卡 
  	f_mount(fs[1],"1:",1); 		//挂载FLASH.
 	
-	while(font_init()) 				//检查字库
-	{
-		LCD_ShowString(30,50,200,16,16,"Font Error!");
-		delay_ms(200);
-		LCD_Fill(30,50,240,66,WHITE);//清除显示
-	}
+//	while(font_init()) 				//检查字库
+//	{
+//		LCD_ShowString(30,50,200,16,16,"Font Error!");
+//		delay_ms(200);
+//		LCD_Fill(30,50,240,66,WHITE);//清除显示
+//	}
 //	init_HC05();
 	//init_wifi_sta_client_trans();
 	car_init();
@@ -54,24 +54,26 @@ void init()
 	
 	while(MPU_Init())					//初始化MPU6050
 	{
-		LCD_ShowString(30,130,200,16,16,"MPU6050 init Error");
-		delay_ms(200);
-		LCD_Fill(30,130,239,130+16,WHITE);
- 		delay_ms(200);
+//		LCD_ShowString(30,130,200,16,16,"MPU6050 init Error");
+//		delay_ms(200);
+//		LCD_Fill(30,130,239,130+16,WHITE);
+// 		delay_ms(200);
+		u3_printf("MPU6050 init Error");
 	}
 	while(mpu_dmp_init())
  	{
-		LCD_ShowString(30,130,200,16,16,"MPU6050 dmp Error");
-		delay_ms(200);
-		LCD_Fill(30,130,239,130+16,WHITE);
- 		delay_ms(200);
+//		LCD_ShowString(30,130,200,16,16,"MPU6050 dmp Error");
+//		delay_ms(200);
+//		LCD_Fill(30,130,239,130+16,WHITE);
+// 		delay_ms(200);
+		u3_printf("MPU6050 dmp Error");
 	}  
 }
 
 int main()
 {
-	char str[20];
-	u32 t=0;
+//	char str[20];
+//	u32 t=0;
 	
 	init();
 	
@@ -106,17 +108,17 @@ int main()
 			UPDATE_OLA_FLAG=0;
 		}
 		
-		if(t>=100000)
-		{
-			LED1=!LED1;
-			sprintf(str,"yaw: %f\n roll: %f\n pitch: %f\n left: %hd\n right: %hd",yaw,roll,pitch,TIM3->CCR1,TIM3->CCR2);
-			LCD_Show_Help_str(30,50,16,str);//参数y=-1代表显示在前一条后面一行
-			sprintf(str,"ACC\r\n  x:%f\r\n  y:%f\r\n  z:%f\r\n",9.8*aacx*1.0/16384.0,9.8*aacy*1.0/16384.0,9.8*aacz*1.0/16384.0);
-			LCD_Show_Help_str(30,-1,16,str);//参数y=-1代表显示在前一条后面一行
-			sprintf(str,"GYR\nx:%d\ny:%d\nz:%d",gyrox,gyroy,gyroz);
-			LCD_Show_Help_str(30,-1,16,str);//参数y =-1代表显示在前一条后面一行
-			t=0;
-		}
-		t++;
+//		if(t>=100000)
+//		{
+//			LED1=!LED1;
+//			sprintf(str,"yaw: %f\n roll: %f\n pitch: %f\n left: %hd\n right: %hd",yaw,roll,pitch,TIM3->CCR1,TIM3->CCR2);
+//			LCD_Show_Help_str(30,50,16,str);//参数y=-1代表显示在前一条后面一行
+//			sprintf(str,"ACC\r\n  x:%f\r\n  y:%f\r\n  z:%f\r\n",9.8*aacx*1.0/16384.0,9.8*aacy*1.0/16384.0,9.8*aacz*1.0/16384.0);
+//			LCD_Show_Help_str(30,-1,16,str);//参数y=-1代表显示在前一条后面一行
+//			sprintf(str,"GYR\nx:%d\ny:%d\nz:%d",gyrox,gyroy,gyroz);
+//			LCD_Show_Help_str(30,-1,16,str);//参数y =-1代表显示在前一条后面一行
+//			t=0;
+//		}
+//		t++;
 	}
 }

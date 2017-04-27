@@ -659,9 +659,9 @@
           <GroupName>README</GroupName>
           <Files>
             <File>
-              <FileName>README.TXT</FileName>
+              <FileName>README.md</FileName>
               <FileType>5</FileType>
-              <FilePath>..\README.TXT</FilePath>
+              <FilePath>..\README.md</FilePath>
             </File>
           </Files>
         </Group>

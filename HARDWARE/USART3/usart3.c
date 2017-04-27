@@ -86,6 +86,10 @@ void analyse(char * str)
 		}
 	}
 	//test
+	else if(str[0]=='A'&&str[1]=='D'){
+		ADJUST_DEALY=atoi(str+2);
+		u3_printf("\nset ADJUST_DEALY ms:%d",TURN_SPEED);
+	}
 	else if(str[0]=='T'&&str[1]=='S'){
 		TURN_SPEED=atoi(str+2);
 		u3_printf("\nset turn speed:%d",TURN_SPEED);
