@@ -18,6 +18,7 @@
 #include "servo.h"
 #include "mpu6050.h"
 #include "inv_mpu.h"
+#include "exti.h"
 
 void init()
 {
@@ -28,6 +29,7 @@ void init()
 	usart3_init(115200);
 	LED_Init();			     //LED端口初始化
 	BEEP_Init();
+	EXTIX_Init();
 //	LCD_Init();
 	W25QXX_Init();				//初始化W25Q128
 	VS_Init();	  				//初始化VS1053 
@@ -67,7 +69,7 @@ void init()
 //		LCD_Fill(30,130,239,130+16,WHITE);
 // 		delay_ms(200);
 		u3_printf("MPU6050 dmp Error");
-	}  
+	}
 }
 
 int main()

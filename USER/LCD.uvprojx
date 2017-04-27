@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\LCD;..\HARDWARE\USART3;..\HARDWARE\MOTOR;..\HARDWARE\USART2;..\HARDWARE\W25QXX;..\HARDWARE\VS10XX;..\HARDWARE\SPI;..\HARDWARE\SDIO;..\SOFTWARE\MALLOC;..\HARDWARE\SD;..\SOFTWARE\MUSIC;..\HARDWARE\BEEP;..\HARDWARE\DISTENCE;..\HARDWARE\SERVO;..\HARDWARE\MPU6050;..\HARDWARE\MPU6050\eMPL</IncludePath>
+              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\LCD;..\HARDWARE\USART3;..\HARDWARE\MOTOR;..\HARDWARE\USART2;..\HARDWARE\W25QXX;..\HARDWARE\VS10XX;..\HARDWARE\SPI;..\HARDWARE\SDIO;..\SOFTWARE\MALLOC;..\HARDWARE\SD;..\SOFTWARE\MUSIC;..\HARDWARE\BEEP;..\HARDWARE\DISTENCE;..\HARDWARE\SERVO;..\HARDWARE\MPU6050;..\HARDWARE\MPU6050\eMPL;..\HARDWARE\EXTI</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -507,6 +507,11 @@
               <FileName>inv_mpu_dmp_motion_driver.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\MPU6050\eMPL\inv_mpu_dmp_motion_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\EXTI\exti.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -652,6 +657,11 @@
               <FileName>stm32f10x_spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STM32F10x_FWLib\src\stm32f10x_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STM32F10x_FWLib\src\stm32f10x_exti.c</FilePath>
             </File>
           </Files>
         </Group>

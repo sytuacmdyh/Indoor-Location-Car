@@ -32,3 +32,4 @@ IO
 	PF1	IO		小车运动
 	PF2	IO		小车运动
 	PF3	IO		小车运动
+	PF4	IO		霍尔传感器 外部中断
