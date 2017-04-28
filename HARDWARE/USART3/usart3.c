@@ -18,6 +18,13 @@
 u8 USART3_RX_BUF[USART3_MAX_RECV_LEN]; 				//接收缓冲,最大USART3_MAX_RECV_LEN个字节.
 u8  USART3_TX_BUF[USART3_MAX_SEND_LEN]; 			//发送缓冲,最大USART3_MAX_SEND_LEN字节
 
+//数据采集任务
+u8 RUNNING_TASK_FLAG=0;
+u8 task_count=0;
+u8 cur_index=0;
+u32 delay_task_second_counter=0;
+char tasks[20][10];
+
 //通过判断接收连续2个字符之间的时间差不大于10ms来决定是不是一次连续的数据.
 //如果2个字符接收间隔超过10ms,则认为不是1次连续数据.也就是超过10ms没有接收到
 //任何数据,则表示此次接收完毕.
@@ -30,7 +37,42 @@ void analyse(char * str)
 {
 	int t;
 	int len=strlen(str);
-	if(str[0]=='L' && str[1]=='D' && is_number(str[2]))//向左旋转指定角度
+	char * p;
+	//在采集过程中，不接受除了停止采集命令之外的任何命令
+	if(RUNNING_TASK_FLAG){
+		if(str[0]=='S' && str[1]=='T' && str[2]=='O' && str[3]=='P'){
+			RUNNING_TASK_FLAG=0;
+			car_stop();
+		}
+		return;
+	}
+	//执行数据采集任务命令 (样例：   TASK:F2,L180,R10,    )
+	if(str[0]=='T' && str[1]=='A' && str[2]=='S' && str[3]=='K' && str[4]==':'){
+		RUNNING_TASK_FLAG=1;
+		memset(tasks,0,sizeof(tasks));
+		task_count=0;
+		p=str+5;
+		cur_index=0;
+		t=0;
+		while(*p){
+			if(*p==','){
+				task_count++;
+				tasks[task_count][t++]=0;
+				t=0;
+			}
+			else{
+				if(t<5 && task_count<20)//防止越界
+					tasks[task_count][t++]=*p;
+			}
+			p++;
+		}
+//		//test 接收
+//		u3_printf("%d\n",task_count);
+//		for(t=0;t<=task_count;t++){
+//			u3_printf("%s\n",tasks[t]);
+//		}
+	}
+	else if(str[0]=='L' && str[1]=='D' && is_number(str[2]))//向左旋转指定角度
 	{
 		t=atoi(str+2);
 		u3_printf("%d\n",t);

@@ -2992,6 +2992,8 @@ float pitch,roll,yaw; 		//欧拉角
 short aacx,aacy,aacz;		//加速度传感器原始数据
 short gyrox,gyroy,gyroz;	//陀螺仪原始数据
 vu8 UPDATE_OLA_FLAG=0;
+u32 global_seconds=0;
+u32 ir_count=0;
 
 //定时器6中断服务程序
 void TIM6_IRQHandler(void)
@@ -2999,6 +3001,11 @@ void TIM6_IRQHandler(void)
 	if (TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)//是更新中断
 	{
 		UPDATE_OLA_FLAG=1;
+		ir_count++;
+		if(ir_count>=100){
+			global_seconds++;
+			ir_count=0;
+		}
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);  //清除TIM6更新中断标志
 	}
 }

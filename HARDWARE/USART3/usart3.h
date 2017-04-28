@@ -50,6 +50,13 @@ extern u8  USART3_RX_BUF[USART3_MAX_RECV_LEN]; 		//接收缓冲,最大USART3_MAX_RECV_
 extern u8  USART3_TX_BUF[USART3_MAX_SEND_LEN]; 		//发送缓冲,最大USART3_MAX_SEND_LEN字节
 extern vu16 USART3_RX_STA;   						//接收数据状态
 
+//采集任务
+extern u8 RUNNING_TASK_FLAG;//执行数据采集任务标志
+extern u8 task_count;//总任务数
+extern u8 cur_index;//当前执行到哪条命令
+extern u32 delay_task_second_counter;//全局延时任务到时时间
+extern char tasks[20][10];//任务列表
+
 void usart3_init(u32 bound);				//串口3初始化 
 void u3_printf(char* fmt,...);			//向串口打印数据
 void analyse(char * str);						//分析串口返回的通信内容

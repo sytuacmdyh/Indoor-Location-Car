@@ -19,6 +19,7 @@
 #include "mpu6050.h"
 #include "inv_mpu.h"
 #include "exti.h"
+#include "stdlib.h"
 
 void init()
 {
@@ -97,6 +98,29 @@ int main()
 	
 	while(1)
 	{
+		//检查采集任务
+		if(RUNNING_TASK_FLAG && !(TIM5->CR1 & TIM_CR1_CEN) && global_seconds >=delay_task_second_counter){//当任务在运行，并且小车处于停止状态（可以通过定时器5判断） ,并且延时任务已完成
+			switch(tasks[cur_index][0]){
+				case 'F':
+					car_forward(atoi(tasks[cur_index]+1));
+					break;
+				case 'L':
+					car_left(atoi(tasks[cur_index]+1));
+					break;
+				case 'R':
+					car_right(atoi(tasks[cur_index]+1));
+					break;
+				case 'D':
+					delay_task_second_counter=global_seconds+atoi(tasks[cur_index]+1);
+					break;
+			}
+			cur_index++;
+			if(cur_index>=task_count){
+				cur_index=0;
+			}
+		}
+		
+		
 		//接收bluetooth消息完成，发送给服务器
 //		send_bluetooth_info();
 		
