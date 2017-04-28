@@ -17,13 +17,11 @@ extern u8 TURN_SPEED;
 extern u8 ADJUST_DEALY;
 
 void car_init(void);//初始化
-void car_forward(void);
+void car_forward(u32 count);
 void car_back(void);
 void car_left(u8 degree);
 void car_right(u8 degree);
-void car_slow(void);
-void car_fast(void);
 void car_stop(void);
-void car_set_speed(int s);
+void reset_dir(void);//矫正前20秒的yaw偏移
 
 #endif

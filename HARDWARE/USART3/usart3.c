@@ -30,60 +30,26 @@ void analyse(char * str)
 {
 	int t;
 	int len=strlen(str);
-	if(len==4 && str[0]=='S' && is_number(str[1]))
+	if(str[0]=='L' && str[1]=='D' && is_number(str[2]))//向左旋转指定角度
 	{
-		t=0;
-		t+=str[1]-'0';
-		t*=10;
-		t+=str[2]-'0';
-		t*=10;
-		t+=str[3]-'0';
+		t=atoi(str+2);
+		u3_printf("%d\n",t);
 		if(t>=0&&t<=180)
-			Servo_Set_Degree(t);
-		
-	}
-	else if(len==3 && str[0]=='S' && str[1]=='P')//setspeed
-	{
-		if(str[2]>='0'&&str[2]<='9')
-			car_set_speed(str[2]-'0');
-	}
-	else if(len==2 && str[0]=='V')//set VOL
-	{
-		if(str[1]>='0'&&str[1]<='9')
-		{
-			VS_Set_Volum(str[1]-'0');
-			//printf("---------%d\n",vsset.mvol);
-		}
-	}
-	else if(str[0]=='L' && str[1]=='D' && is_number(str[2]))//向左旋转指定角度
-	{
-		if(strlen(str)==5)
-		{
-			t=0;
-			t+=str[2]-'0';
-			t*=10;
-			t+=str[3]-'0';
-			t*=10;
-			t+=str[4]-'0';
-			u3_printf("%d\n",t);
-			if(t>=0&&t<=180)
-				car_left(t);
-		}
+			car_left(t);
 	}
 	else if(str[0]=='R' && str[1]=='D' && is_number(str[2]))//向右旋转指定角度
 	{
-		if(strlen(str)==5)
-		{
-			t=0;
-			t+=str[2]-'0';
-			t*=10;
-			t+=str[3]-'0';
-			t*=10;
-			t+=str[4]-'0';
-			u3_printf("%d\n",t);
-			if(t>=0&&t<=180)
-				car_right(t);
-		}
+		t=atoi(str+2);
+		u3_printf("%d\n",t);
+		if(t>=0&&t<=180)
+			car_right(t);
+	}
+	else if(str[0]=='F' && str[1]=='D' && is_number(str[2]))//向前前进单位长度
+	{
+		t=atoi(str+2);
+		u3_printf("%d\n",t);
+		if(t>=0&&t<=180)
+			car_forward(t);
 	}
 	//test
 	else if(str[0]=='A'&&str[1]=='D'){
@@ -94,98 +60,17 @@ void analyse(char * str)
 		TURN_SPEED=atoi(str+2);
 		u3_printf("\nset turn speed:%d",TURN_SPEED);
 	}
-	else if(strlen(str)==4 && str[0]=='T')//设置小车自动调整参数
-	{
-		SPEED_DIF=str[1]-'0';
-		MAX_DEGREE=(str[2]-'0')*10;
-		START_AUST=str[3]-'0';
+	else if(str[0]=='S'&&str[1]=='D'){
+		SPEED_DIF=atoi(str+2);
+		u3_printf("\nset SPEED_DIF:%d",SPEED_DIF);
 	}
 	//不带参协议
 	if(strcmp(HELLO,str)==0)
 	{
 		strcpy(song_path,"0:/MUSIC/HELLO.mp3");
 	}
-	else if(strcmp(FORWARD,str)==0)
-	{
-		car_forward();
-	}
-	else if(strcmp(FORWARD_SHORT,str)==0)
-	{
-		car_forward();
-		delay_ms(MOVE_KEEP_TIME);
-		car_stop();
-	}
-	else if(strcmp(BACK,str)==0)
-	{
-		car_back();
-		strcpy(song_path,"0:/MUSIC/BACK.mp3");
-	}
-	else if(strcmp(BACK_SHORT,str)==0)
-	{
-		car_back();
-		strcpy(song_path,"0:/MUSIC/BACK.mp3");
-		delay_ms(MOVE_KEEP_TIME);
-		car_stop();
-	}
-	else if(strcmp(LEFT,str)==0)
-	{
-		car_left(90);
-	}
-	else if(strcmp(LEFT_SHORT,str)==0)
-	{
-		car_left(90);
-		delay_ms(MOVE_KEEP_TIME);
-		car_stop();
-	}
-	else if(strcmp(RIGHT,str)==0)
-	{
-		car_right(90);
-	}
-	else if(strcmp(RIGHT_SHORT,str)==0)
-	{
-		car_right(90);
-		delay_ms(MOVE_KEEP_TIME);
-		car_stop();
-	}
-	else if(strcmp(SUB_SPEED,str)==0)
-	{
-		car_slow();
-	}
-	else if(strcmp(ADD_SPEED,str)==0)
-	{
-		car_fast();
-	}
-	else if(strcmp(STOP,str)==0)
-	{
-		car_stop();
-	}
-	else if(strcmp(QUIT_TRANS,str)==0)
-	{
-		atk_8266_quit_trans();
-	}
-	else if(strcmp(GET_BLUETOOTH_INFO,str)==0)
-	{
-		get_bluetooth_info();
-	}
-	else if(strcmp(UNDO_GET_BLUETOOTH_INFO,str)==0)
-	{
-		undo_get_bluetooth_info();
-	}
-	else if(strcmp(GET_DISTENCE,str)==0)
-	{
-		GET_DIS_FLAG=1;
-	}
-	else if(strcmp(SERVO_LEFT,str)==0)
-	{
-		Servo_Set_Degree(180);
-	}
-	else if(strcmp(SERVO_FORWARD,str)==0)
-	{
-		Servo_Set_Degree(90);
-	}
-	else if(strcmp(SERVO_RIGHT,str)==0)
-	{
-		Servo_Set_Degree(0);
+	else if(strcmp("reset_dir",str)==0){
+		reset_dir();
 	}
 }
 

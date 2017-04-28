@@ -50,7 +50,6 @@ void init()
 //	init_HC05();
 	//init_wifi_sta_client_trans();
 	car_init();
-	car_set_speed(4);
 	VS_Set_Volum(4);
 	mp3_init();
 	
@@ -72,15 +71,29 @@ void init()
 	}
 }
 
+void init_car(){
+	init_weel();//初始化小车轮子到霍尔传感器感应处
+	while(!init_ok()){
+		delay_ms(100);
+	}
+}
+
 int main()
 {
 //	char str[20];
 //	u32 t=0;
 	
+	//初始化模块
 	init();
 	
 	//初始化完成，滴一声
 	BEEP_DI();
+	
+	//初始小车状态
+	init_car();
+	
+	//初始化完成，滴2声
+	BEEP_DI2();
 	
 	while(1)
 	{

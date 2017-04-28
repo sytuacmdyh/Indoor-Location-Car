@@ -27,10 +27,10 @@ void BEEP_DI()//µÎÒ»Éù
 void BEEP_DI2(void)
 {
 	BEEP=1;
-	delay_ms(200);
+	delay_ms(20);
 	BEEP=0;
 	delay_ms(100);
 	BEEP=1;
-	delay_ms(200);
+	delay_ms(20);
 	BEEP=0;
 }

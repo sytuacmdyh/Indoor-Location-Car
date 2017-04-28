@@ -2,12 +2,7 @@
 #include "inv_mpu.h"
 #include "usart3.h"
 #include "delay.h"
-
-//speed 调整幅度
-u8 SPEED_DIF=5;
-u8 MAX_DEGREE=90;//微调最大限度
-u8 START_AUST=2;
-u8 ADJUST_DEALY=30;//单次调整
+#include "exti.h"
 
 //状态
 #define _STOP	0
@@ -17,8 +12,16 @@ u8 ADJUST_DEALY=30;//单次调整
 #define _RIGHT	4
 #define _ADUEST	5
 
+#define WHEEL_PERIMETER 207
+//轮子周长 66*3.14 mm
+
+//speed 调整幅度
+u8 SPEED_DIF=2;
+u8 START_AUST=2;
+u8 ADJUST_DEALY=30;//单次调整
+
 //转弯速度
-u8 TURN_SPEED=90;
+u8 TURN_SPEED=120;
 
 u8 cur_task=_STOP;//当前状态
 short raw_yaw=0;//动作开始前的航向角
@@ -26,7 +29,8 @@ short tar_yaw=0;//目的航向角
 short last_yaw_dis;
 
 //现TIM3 计数初值为255
-int speed=150;//约80<=speed<=255转
+int speed_l=215;//前进后退 左轮速度
+int speed_r=130;//前进后退 右轮速度
 
 //辅助变量
 int temp_yaw;
@@ -48,6 +52,10 @@ short yaw_dis(short yaw1,short yaw2){
 		ans=360-ans;
 	}
 	return ans;
+}
+
+void reset_dir(){
+	tar_yaw=raw_yaw=yaw;
 }
 
 u8 get_speed(int speed,int l,int r)
@@ -106,31 +114,13 @@ void TIM3_PWM_Init(u16 arr,u16 psc)
 	TIM_Cmd(TIM3, ENABLE);  //使能TIM3
 }
 //basic
-void car_forward(){
-	
-	cur_task=_FORWARD;
-	raw_yaw=tar_yaw=yaw;
-	
-	TIM_Cmd(TIM5,ENABLE);//开启定时器5
-	MOTOR_L_F=1;
-	MOTOR_L_B=0;
-	MOTOR_R_F=1;
-	MOTOR_R_B=0;
-	TIM_SetCompare1(TIM3,speed);
-	TIM_SetCompare2(TIM3,speed);
+void set_run_speed(){
+	TIM_SetCompare1(TIM3,speed_l);
+	TIM_SetCompare2(TIM3,speed_r);
 }
-void car_back(){
-	
-	cur_task=_BACK;
-	raw_yaw=tar_yaw=yaw;
-	
-	TIM_Cmd(TIM5,ENABLE);//开启定时器5
-	MOTOR_L_F=0;
-	MOTOR_L_B=1;
-	MOTOR_R_F=0;
-	MOTOR_R_B=1;
-	TIM_SetCompare1(TIM3,speed);
-	TIM_SetCompare2(TIM3,speed);
+void set_turn_speed(){
+	TIM_SetCompare1(TIM3,TURN_SPEED);
+	TIM_SetCompare2(TIM3,TURN_SPEED);
 }
 void turn_left()
 {
@@ -138,8 +128,7 @@ void turn_left()
 	MOTOR_L_B=0;
 	MOTOR_R_F=1;
 	MOTOR_R_B=0;
-	TIM_SetCompare1(TIM3,TURN_SPEED);
-	TIM_SetCompare2(TIM3,TURN_SPEED);
+	set_turn_speed();
 }
 void turn_left_center_short()//两轮子齐动
 {
@@ -147,8 +136,7 @@ void turn_left_center_short()//两轮子齐动
 	MOTOR_L_B=1;
 	MOTOR_R_F=1;
 	MOTOR_R_B=0;
-	TIM_SetCompare1(TIM3,TURN_SPEED);
-	TIM_SetCompare2(TIM3,TURN_SPEED);
+	set_turn_speed();
 	delay_ms(ADJUST_DEALY);
 	MOTOR_L_F=0;
 	MOTOR_L_B=0;
@@ -161,8 +149,7 @@ void turn_left_reverse()
 	MOTOR_L_B=0;
 	MOTOR_R_F=0;
 	MOTOR_R_B=1;
-	TIM_SetCompare1(TIM3,TURN_SPEED);
-	TIM_SetCompare2(TIM3,TURN_SPEED);
+	set_turn_speed();
 }
 void turn_right()
 {
@@ -170,8 +157,7 @@ void turn_right()
 	MOTOR_L_B=0;
 	MOTOR_R_F=0;
 	MOTOR_R_B=0;
-	TIM_SetCompare1(TIM3,TURN_SPEED);
-	TIM_SetCompare2(TIM3,TURN_SPEED);
+	set_turn_speed();
 }
 void turn_right_center_short()
 {
@@ -179,8 +165,7 @@ void turn_right_center_short()
 	MOTOR_L_B=0;
 	MOTOR_R_F=0;
 	MOTOR_R_B=1;
-	TIM_SetCompare1(TIM3,TURN_SPEED);
-	TIM_SetCompare2(TIM3,TURN_SPEED);
+	set_turn_speed();
 	delay_ms(ADJUST_DEALY);
 	MOTOR_L_F=0;
 	MOTOR_L_B=0;
@@ -193,10 +178,31 @@ void turn_right_reverse()
 	MOTOR_L_B=1;
 	MOTOR_R_F=0;
 	MOTOR_R_B=0;
-	TIM_SetCompare1(TIM3,TURN_SPEED);
-	TIM_SetCompare2(TIM3,TURN_SPEED);
+	set_turn_speed();
 }
 //extend
+void car_forward(u32 count){
+	exti_task=count;
+	cur_task=_FORWARD;
+	
+	TIM_Cmd(TIM5,ENABLE);//开启定时器5
+	MOTOR_L_F=1;
+	MOTOR_L_B=0;
+	MOTOR_R_F=1;
+	MOTOR_R_B=0;
+	set_run_speed();
+}
+void car_back(){
+	
+	cur_task=_BACK;
+	
+	TIM_Cmd(TIM5,ENABLE);//开启定时器5
+	MOTOR_L_F=0;
+	MOTOR_L_B=1;
+	MOTOR_R_F=0;
+	MOTOR_R_B=1;
+	set_run_speed();
+}
 void start_adjust(){
 	cur_task=_ADUEST;
 	total_adjust_count=0;
@@ -235,30 +241,13 @@ void car_right(u8 degree){
 	
 	TIM_Cmd(TIM5,ENABLE);//开启定时器5
 }
-void car_set_speed(int s)
-{
-	s=(255-80)*1.0*s/10.0+80;
-	speed=get_speed(s,80,255);
-	TIM_SetCompare1(TIM3,speed);
-	TIM_SetCompare2(TIM3,speed);
-}
-void car_slow(){
-	speed-=SPEED_STEP;
-	speed=get_speed(speed,80,255);
-	TIM_SetCompare1(TIM3,speed);
-	TIM_SetCompare2(TIM3,speed);
-}
-void car_fast(){
-	speed+=SPEED_STEP;
-	speed=get_speed(speed,80,255);
-	TIM_SetCompare1(TIM3,speed);
-	TIM_SetCompare2(TIM3,speed);
-}
 
 void car_stop(void){
 	
 	cur_task=_STOP;
-	raw_yaw=tar_yaw=yaw;
+	
+	u3_printf("\nl:%d r:%d\n",speed_l,speed_r);
+	u3_printf("\ntar:%d yaw:%f\n",tar_yaw,yaw);
 	
 	TIM_Cmd(TIM5,DISABLE);//关闭定时器5
 	MOTOR_L_F=0;
@@ -271,20 +260,18 @@ void car_stop(void){
 
 void left_more()//往左微调
 {
-	if(TIM3->CCR2-TIM3->CCR1<MAX_DEGREE)
-	{
-		TIM3->CCR1=get_speed(TIM3->CCR1-SPEED_DIF,80,255);//左轮减小一点速度
-		TIM3->CCR2=get_speed(TIM3->CCR2+SPEED_DIF,80,255);//右轮增加一点速度
-	}
+	speed_l=get_speed(TIM3->CCR1-SPEED_DIF,90,255);
+	speed_r=get_speed(TIM3->CCR2+SPEED_DIF,90,255);
+	TIM3->CCR1=speed_l;//左轮减小一点速度
+	TIM3->CCR2=speed_r;//右轮增加一点速度
 }
 
 void right_more()//往右微调
 {
-	if(TIM3->CCR1-TIM3->CCR2<MAX_DEGREE)
-	{
-		TIM3->CCR1=get_speed(TIM3->CCR1+SPEED_DIF,80,255);//左轮增加一点速度
-		TIM3->CCR2=get_speed(TIM3->CCR2-SPEED_DIF,80,255);//右轮减少一点速度
-	}
+	speed_l=get_speed(TIM3->CCR1+SPEED_DIF,90,255);
+	speed_r=get_speed(TIM3->CCR2-SPEED_DIF,90,255);
+	TIM3->CCR1=speed_l;//左轮增加一点速度
+	TIM3->CCR2=speed_r;//右轮减少一点速度
 }
 
 //定时器5中断服务程序		    
@@ -318,7 +305,7 @@ void TIM5_IRQHandler(void)
 				else{
 					adjust_count=0;
 					if(temp_yaw<tar_yaw){
-						if(cur_yaw_dis<180){
+						if(tar_yaw-temp_yaw<180){
 							turn_left_center_short();
 						}
 						else{
@@ -326,7 +313,7 @@ void TIM5_IRQHandler(void)
 						}
 					}
 					else{
-						if(cur_yaw_dis<180){
+						if(temp_yaw-tar_yaw<180){
 							turn_right_center_short();
 						}
 						else{
@@ -339,10 +326,29 @@ void TIM5_IRQHandler(void)
 				TIM_Cmd(TIM5,DISABLE);//关闭定时器5
 				break;
 			case _FORWARD:
-				if(temp_yaw>tar_yaw+START_AUST)
-					right_more();
-				else if(yaw<tar_yaw-START_AUST)
-					left_more();
+				cur_yaw_dis=yaw_dis(temp_yaw,tar_yaw);
+				if(cur_yaw_dis<START_AUST)
+					break;
+				if(temp_yaw<tar_yaw){
+					if(tar_yaw-temp_yaw<180){
+						left_more();
+						u3_printf("1");
+					}
+					else{
+						right_more();
+						u3_printf("2");
+					}
+				}
+				else{
+					if(temp_yaw-tar_yaw<180){
+						right_more();
+						u3_printf("3");
+					}
+					else{
+						left_more();
+						u3_printf("4");
+					}
+				}
 				break;
 			case _LEFT:
 				cur_yaw_dis=yaw_dis(temp_yaw,tar_yaw);
@@ -370,7 +376,7 @@ void TIM5_IRQHandler(void)
 				break;
 			case _RIGHT:
 				cur_yaw_dis=yaw_dis(temp_yaw,tar_yaw);
-				u3_printf("%d %d %d %d %d\n",tar_yaw, temp_yaw, cur_yaw_dis, last_yaw_dis, reverse_flag);
+//				u3_printf("%d %d %d %d %d\n",tar_yaw, temp_yaw, cur_yaw_dis, last_yaw_dis, reverse_flag);
 				if(cur_yaw_dis<=START_AUST){
 					start_adjust();
 				}

@@ -14,6 +14,10 @@
 //All rights reserved									  
 //////////////////////////////////////////////////////////////////////////////////   
 
-void EXTIX_Init(void);//外部中断初始化		 					    
+extern u32 exti_task;//小车还有多少步要走
+
+void init_weel(void);//初始化轮子位置在磁铁处
+u8 init_ok(void);//返回小车是否已初始化成功，调用需要放在init_weel之后
+void EXTIX_Init(void);//外部中断初始化
 #endif
 

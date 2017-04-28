@@ -1,21 +1,24 @@
 #include "exti.h"
-//#include "beep.h"
+#include "motor.h"
+#include "beep.h"
+#include "usart3.h"
+#include "delay.h"
 
 u32 STEP=0;
+u32 exti_task=0;
 
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//外部中断 驱动代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/9/3
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
-//////////////////////////////////////////////////////////////////////////////////   
-//外部中断0服务程序
+u8 init_weel_flag=0;
+
+void init_weel(){
+	init_weel_flag=1;
+	car_forward(100);
+}
+
+u8 init_ok(){
+	return init_weel_flag==0;
+}
+
+//外部中断初始化
 void EXTIX_Init(void)
 {
  
@@ -27,7 +30,7 @@ void EXTIX_Init(void)
 	//GPIOF.4	  中断线以及中断初始化配置  下降沿触发	//KEY0
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOF,GPIO_PinSource4);
   	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
-  	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+  	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   	EXTI_InitStructure.EXTI_Line=EXTI_Line4;
   	EXTI_Init(&EXTI_InitStructure);	  	//根据EXTI_InitStruct中指定的参数初始化外设EXTI寄存器
@@ -41,11 +44,23 @@ void EXTIX_Init(void)
 
 void EXTI4_IRQHandler(void)
 {
-//	PFout(4);
-	if(PFout(4)){
-		STEP++;
+	if(init_weel_flag){//初始化模式下
+		car_stop();
+		STEP=0;
+		exti_task=0;
+		init_weel_flag=0;
+		u3_printf("ok");
 	}
-//	BEEP_DI();
+	else {
+//		u3_printf("%d",exti_task);
+		STEP++;
+		if(exti_task>0){
+			exti_task--;
+			if(exti_task<=0){
+				car_stop();
+			}
+		}
+	}
 	EXTI_ClearITPendingBit(EXTI_Line4);  //清除LINE4上的中断标志位  
 }
  
