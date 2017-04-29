@@ -4,20 +4,9 @@
 #include "delay.h"
 #include "exti.h"
 
-//状态
-#define _STOP	0
-#define _FORWARD 1
-#define _BACK	2
-#define _LEFT	3
-#define _RIGHT	4
-#define _ADUEST	5
-
-#define WHEEL_PERIMETER 207
-//轮子周长 66*3.14 mm
-
 //speed 调整幅度
 u8 SPEED_DIF=2;
-u8 START_AUST=2;
+u8 START_AUST=1;
 u8 ADJUST_DEALY=30;//单次调整
 
 //转弯速度
@@ -56,6 +45,7 @@ short yaw_dis(short yaw1,short yaw2){
 
 void reset_dir(){
 	tar_yaw=raw_yaw=yaw;
+	global_x=global_y=0;
 }
 
 u8 get_speed(int speed,int l,int r)
@@ -246,8 +236,8 @@ void car_stop(void){
 	
 	cur_task=_STOP;
 	
-	u3_printf("\nl:%d r:%d\n",speed_l,speed_r);
-	u3_printf("\ntar:%d yaw:%f\n",tar_yaw,yaw);
+	//u3_printf("\nl:%d r:%d\n",speed_l,speed_r);
+	//u3_printf("\ntar:%d yaw:%f\n",tar_yaw,yaw);
 	
 	TIM_Cmd(TIM5,DISABLE);//关闭定时器5
 	MOTOR_L_F=0;
@@ -332,21 +322,21 @@ void TIM5_IRQHandler(void)
 				if(temp_yaw<tar_yaw){
 					if(tar_yaw-temp_yaw<180){
 						left_more();
-						u3_printf("1");
+//						u3_printf("1");
 					}
 					else{
 						right_more();
-						u3_printf("2");
+//						u3_printf("2");
 					}
 				}
 				else{
 					if(temp_yaw-tar_yaw<180){
 						right_more();
-						u3_printf("3");
+//						u3_printf("3");
 					}
 					else{
 						left_more();
-						u3_printf("4");
+//						u3_printf("4");
 					}
 				}
 				break;

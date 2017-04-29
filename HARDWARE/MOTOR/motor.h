@@ -10,11 +10,20 @@
 
 #define SPEED_STEP 20
 
+//状态
+#define _STOP	0
+#define _FORWARD 1
+#define _BACK	2
+#define _LEFT	3
+#define _RIGHT	4
+#define _ADUEST	5
+
 extern u8 SPEED_DIF;
 extern u8 MAX_DEGREE;
 extern u8 START_AUST;
 extern u8 TURN_SPEED;
 extern u8 ADJUST_DEALY;
+extern u8 cur_task;//当前状态
 
 void car_init(void);//初始化
 void car_forward(u32 count);

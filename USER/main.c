@@ -81,6 +81,7 @@ void init_car(){
 
 int main()
 {
+	u32 temp=0;
 //	char str[20];
 //	u32 t=0;
 	
@@ -120,6 +121,11 @@ int main()
 			}
 		}
 		
+		if(RUNNING_TASK_FLAG && global_seconds>temp+1){
+			u3_printf("蓝牙信号\n");
+			u3_printf("x:%f y:%f\n",global_x,global_y);
+			temp=global_seconds;
+		}
 		
 		//接收bluetooth消息完成，发送给服务器
 //		send_bluetooth_info();

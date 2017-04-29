@@ -3,8 +3,15 @@
 #include "beep.h"
 #include "usart3.h"
 #include "delay.h"
+#include <math.h>
+#include "inv_mpu.h"
+
+#define WHEEL_PERIMETER 207
+#define PI 3.1415927
+//轮子周长 66*3.14 mm
 
 u32 STEP=0;
+float global_x=0,global_y=0;
 u32 exti_task=0;
 
 u8 init_weel_flag=0;
@@ -44,6 +51,7 @@ void EXTIX_Init(void)
 
 void EXTI4_IRQHandler(void)
 {
+	float temp_yaw=yaw*(PI/180.0);
 	if(init_weel_flag){//初始化模式下
 		car_stop();
 		STEP=0;
@@ -54,6 +62,11 @@ void EXTI4_IRQHandler(void)
 	else {
 //		u3_printf("%d",exti_task);
 		STEP++;
+		if(cur_task==_FORWARD){
+			global_x+=WHEEL_PERIMETER*cos(temp_yaw);
+			global_y+=WHEEL_PERIMETER*sin(temp_yaw);
+		}
+		//u3_printf("x:%f y:%f yaw:%f\n",global_x,global_y, yaw);
 		if(exti_task>0){
 			exti_task--;
 			if(exti_task<=0){
