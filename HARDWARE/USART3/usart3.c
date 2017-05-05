@@ -12,6 +12,7 @@
 #include "sr04.h"
 #include "servo.h"
 #include "usart.h"
+#include "exti.h"
 
 #define is_number(a) ((a)>='0'&&(a)<='9')
 
@@ -38,7 +39,7 @@ void analyse(char * str)
 {
 	int t;
 	int len=strlen(str);
-	char * p;
+	char * p,* p1,* p2,* p3;
 	//在采集过程中，不接受除了停止采集命令之外的任何命令
 	if(RUNNING_TASK_FLAG){
 		if(str[0]=='S' && str[1]=='T' && str[2]=='O' && str[3]=='P'){
@@ -73,6 +74,19 @@ void analyse(char * str)
 //		for(t=0;t<=task_count;t++){
 //			u3_printf("%s\n",tasks[t]);
 //		}
+	}
+	else if(str[0]=='S' && str[1]=='P' && str[2]==' '){//设置小车位置  SP (100,100)
+		p1=strchr(str,'(');
+		if(!p1) return;
+		p2=strchr(p1+1,',');
+		if(!p2) return;
+		p3=strchr(p2+1,')');
+		if(!p3) return;
+		*p1=0;
+		*p2=0;
+		*p3=0;
+		global_x=atof(p1+1);
+		global_y=atof(p2+1);
 	}
 	else if(str[0]=='L' && str[1]=='D' && is_number(str[2]))//向左旋转指定角度
 	{
