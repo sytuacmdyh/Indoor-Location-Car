@@ -354,7 +354,7 @@ void TIM5_IRQHandler(void)
 				
 				if(cur_yaw_dis>last_yaw_dis){//表示当前方向是反的
 					error_count++;
-					if(error_count>5){//防止波动
+					if(error_count>2){//防止波动
 						reverse_flag=!reverse_flag;
 						error_count=0;
 					}
@@ -379,7 +379,7 @@ void TIM5_IRQHandler(void)
 				
 				if(cur_yaw_dis>last_yaw_dis){//表示当前方向是反的
 					error_count++;
-					if(error_count>5){//防止波动
+					if(error_count>2){//防止波动
 						reverse_flag=!reverse_flag;
 						error_count=0;
 					}

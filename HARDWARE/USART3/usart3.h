@@ -14,8 +14,8 @@
 
 #define AT_CWLAP "AT+CWLAP\r\n"
 
-#define USART3_MAX_RECV_LEN		2000					//最大接收缓存字节数
-#define USART3_MAX_SEND_LEN		2000					//最大发送缓存字节数
+#define USART3_MAX_RECV_LEN		100					//最大接收缓存字节数
+#define USART3_MAX_SEND_LEN		2500					//最大发送缓存字节数
 #define USART3_RX_EN 			1					//0,不接收;1,接收.
 
 #define MOVE_KEEP_TIME 600
@@ -61,7 +61,6 @@ void usart3_init(u32 bound);				//串口3初始化
 void u3_printf(char* fmt,...);			//向串口打印数据
 void analyse(char * str);						//分析串口返回的通信内容
 void atk_8266_quit_trans(void);			//atk-esp8266 wifi模块退出透传模式指令
-void send_bluetooth_info(void);		//发送周围蓝牙信号
 
 #endif
 

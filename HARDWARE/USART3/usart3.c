@@ -11,6 +11,7 @@
 #include "beep.h"
 #include "sr04.h"
 #include "servo.h"
+#include "usart.h"
 
 #define is_number(a) ((a)>='0'&&(a)<='9')
 
@@ -49,6 +50,7 @@ void analyse(char * str)
 	//执行数据采集任务命令 (样例：   TASK:F2,L180,R10,    )
 	if(str[0]=='T' && str[1]=='A' && str[2]=='S' && str[3]=='K' && str[4]==':'){
 		RUNNING_TASK_FLAG=1;
+		start_search_wifi();
 		memset(tasks,0,sizeof(tasks));
 		task_count=0;
 		p=str+5;
@@ -177,7 +179,6 @@ void USART3_IRQHandler(void)
 			{
 				USART3_RX_STA|=1<<15;				//强制标记接收完成
 				USART3_RX_BUF[USART3_RX_STA&0x7FFF]=0;
-				printf("%s",USART3_RX_BUF);//转发到usart1
 				analyse((char*)USART3_RX_BUF);
 			}
 		}
@@ -268,13 +269,53 @@ void atk_8266_quit_trans(void)
 	delay_ms(500);					//等待500ms
 }
 
-void send_bluetooth_info()
-{
-	if(GETTING_INFO_FLAG && (BLUETOOTH_MESSAGE_LEN&(1<<15)))
-	{
-		u3_printf((char *)BLUETOOTH_MESSAGE_BUF);
-		GETTING_INFO_FLAG=FALSE;
-		BLUETOOTH_MESSAGE_LEN=0;
-		USART2_RX_STA=0;
-	}
-}
+//void send_wifi_json(u8 * str){
+//	char * strchr (const char *str, int c);
+//	char * left = 0;
+//	char * p1,* p2,* p3,* p4=(char *)str;
+//	u16 len=1;
+//	char * t;
+//	int i=0;
+//	
+//	
+//	//构造json
+//	USART3_TX_BUF[0]='{';
+//	
+//	while(0!=(left=strchr(p4,'('))){
+//		if(0==(p1=strchr(left,','))){
+//			break;
+//		}
+//		if(0==(p2=strchr(p1+1,','))){
+//			break;
+//		}
+//		if(0==(p3=strchr(p2+1,','))){
+//			break;
+//		}
+//		if(0==(p4=strchr(p3+1,','))){
+//			break;
+//		}
+//		
+//		if(*(p2+1)!='-' || *(p3+1)!='"' || *(p4-1)!='"'){
+//			break;
+//		}
+//		
+//		//填充
+//		for(t=p3+1;t!=p4;t++){
+//			USART3_TX_BUF[len++]=*t;
+//		}
+//		USART3_TX_BUF[len++]=':';
+//		for(t=p2+1;t!=p3;t++){
+//			USART3_TX_BUF[len++]=*t;
+//		}
+//		USART3_TX_BUF[len++]=',';
+//	}
+//	if(USART3_TX_BUF[len-1]==','){
+//		len--;
+//	}
+//	USART3_TX_BUF[len]='}';
+//	for(i=0; i<=len; i++)							//循环发送数据
+//	{
+//		while(USART_GetFlagStatus(USART3,USART_FLAG_TC)==RESET); //循环发送,直到发送完毕
+//		USART_SendData(USART3,USART3_TX_BUF[i]);
+//	}
+//}

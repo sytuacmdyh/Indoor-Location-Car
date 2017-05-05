@@ -26,7 +26,7 @@ void init()
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	 //设置NVIC中断分组2:2位抢占优先级，2位响应优先级
 	delay_init();	    	 //延时函数初始化
 	uart_init(115200);	 	//串口初始化为115200
-	usart2_init(38400);//蓝牙AT模式波特率38400，通信模式9600
+	usart2_init(115200);
 	usart3_init(115200);
 	LED_Init();			     //LED端口初始化
 	BEEP_Init();
@@ -48,8 +48,6 @@ void init()
 //		delay_ms(200);
 //		LCD_Fill(30,50,240,66,WHITE);//清除显示
 //	}
-//	init_HC05();
-	//init_wifi_sta_client_trans();
 	car_init();
 	VS_Set_Volum(4);
 	mp3_init();
@@ -81,7 +79,6 @@ void init_car(){
 
 int main()
 {
-	u32 temp=0;
 //	char str[20];
 //	u32 t=0;
 	
@@ -91,11 +88,11 @@ int main()
 	//初始化完成，滴一声
 	BEEP_DI();
 	
-	//初始小车状态
-	init_car();
-	
-	//初始化完成，滴2声
-	BEEP_DI2();
+//	//初始小车状态
+//	init_car();
+//	
+//	//初始化完成，滴2声
+//	BEEP_DI2();
 	
 	while(1)
 	{
@@ -121,10 +118,16 @@ int main()
 			}
 		}
 		
-		if(RUNNING_TASK_FLAG && global_seconds>temp+1){
-			u3_printf("蓝牙信号\n");
-			u3_printf("x:%f y:%f\n",global_x,global_y);
-			temp=global_seconds;
+		if(RUNNING_TASK_FLAG){
+			
+			if(USART_RX_STA&0x8000){//wifi信号检测完成
+				u3_printf("%s",USART_TX_BUF);
+				start_search_wifi();
+			}
+			if(USART2_RX_STA&0x8000){
+				u3_printf("%s",USART2_TX_BUF);
+				start_search_ibeacon();
+			}
 		}
 		
 		//接收bluetooth消息完成，发送给服务器
