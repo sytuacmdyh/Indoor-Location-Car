@@ -42,30 +42,16 @@ void init()
 	f_mount(fs[0],"0:",1); 		//挂载SD卡 
  	f_mount(fs[1],"1:",1); 		//挂载FLASH.
 	
-//	while(font_init()) 				//检查字库
-//	{
-//		LCD_ShowString(30,50,200,16,16,"Font Error!");
-//		delay_ms(200);
-//		LCD_Fill(30,50,240,66,WHITE);//清除显示
-//	}
 	car_init();
 	VS_Set_Volum(4);
 	mp3_init();
 	
-	while(MPU_Init())					//初始化MPU6050
+	while(MPU_Init())//初始化MPU6050
 	{
-//		LCD_ShowString(30,130,200,16,16,"MPU6050 init Error");
-//		delay_ms(200);
-//		LCD_Fill(30,130,239,130+16,WHITE);
-// 		delay_ms(200);
 		u3_printf("MPU6050 init Error");
 	}
 	while(mpu_dmp_init())
  	{
-//		LCD_ShowString(30,130,200,16,16,"MPU6050 dmp Error");
-//		delay_ms(200);
-//		LCD_Fill(30,130,239,130+16,WHITE);
-// 		delay_ms(200);
 		u3_printf("MPU6050 dmp Error");
 	}
 }
@@ -79,20 +65,17 @@ void init_car(){
 
 int main()
 {
-//	char str[20];
-//	u32 t=0;
-	
 	//初始化模块
 	init();
 	
 	//初始化完成，滴一声
 	BEEP_DI();
 	
-//	//初始小车状态
-//	init_car();
-//	
-//	//初始化完成，滴2声
-//	BEEP_DI2();
+	//初始小车状态
+	init_car();
+
+	//初始化完成，滴2声
+	BEEP_DI2();
 	
 	while(1)
 	{
@@ -130,9 +113,6 @@ int main()
 			}
 		}
 		
-		//接收bluetooth消息完成，发送给服务器
-//		send_bluetooth_info();
-		
 		//播放音乐部分
 		mp3_play();
 		
@@ -151,22 +131,8 @@ int main()
 			{
 				MPU_Get_Accelerometer(&aacx,&aacy,&aacz);	//得到加速度传感器数据
 				MPU_Get_Gyroscope(&gyrox,&gyroy,&gyroz);	//得到陀螺仪数据
-				//u3_printf();
 			}
 			UPDATE_OLA_FLAG=0;
 		}
-		
-//		if(t>=100000)
-//		{
-//			LED1=!LED1;
-//			sprintf(str,"yaw: %f\n roll: %f\n pitch: %f\n left: %hd\n right: %hd",yaw,roll,pitch,TIM3->CCR1,TIM3->CCR2);
-//			LCD_Show_Help_str(30,50,16,str);//参数y=-1代表显示在前一条后面一行
-//			sprintf(str,"ACC\r\n  x:%f\r\n  y:%f\r\n  z:%f\r\n",9.8*aacx*1.0/16384.0,9.8*aacy*1.0/16384.0,9.8*aacz*1.0/16384.0);
-//			LCD_Show_Help_str(30,-1,16,str);//参数y=-1代表显示在前一条后面一行
-//			sprintf(str,"GYR\nx:%d\ny:%d\nz:%d",gyrox,gyroy,gyroz);
-//			LCD_Show_Help_str(30,-1,16,str);//参数y =-1代表显示在前一条后面一行
-//			t=0;
-//		}
-//		t++;
 	}
 }
